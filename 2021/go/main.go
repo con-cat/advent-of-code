@@ -42,7 +42,6 @@ func main() {
 	fmt.Println("=== Day 2 ===")
 	input := sliceFileLines("../input/day02.txt")
 
-	fmt.Println("--- Part 1 ---")
 	result := day2(input)
-	fmt.Println(result)
+	fmt.Printf("Part 2 result: %d\n", result)
 }

@@ -8,6 +8,7 @@ import (
 func day2(input []string) int {
 	horizontalPos := 0
 	depth := 0
+	aim := 0
 	for _, value := range input {
 		// Get the direction and distance
 		split := strings.Split(value, " ")
@@ -20,10 +21,11 @@ func day2(input []string) int {
 		switch direction {
 		case "forward":
 			horizontalPos += distance
+			depth += aim * distance
 		case "down":
-			depth += distance
+			aim += distance
 		case "up":
-			depth -= distance
+			aim -= distance
 		}
 	}
 	return horizontalPos * depth

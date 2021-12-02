@@ -14,10 +14,10 @@ func TestDay2(t *testing.T) {
 		"forward 2",
 	}
 
-	// Part 1
+	// Part 2
 	result := day2(input)
 
-	expected := 150
+	expected := 900
 	if result != expected {
 		t.Errorf("Result was incorrect, got: %d, want: %d.", result, expected)
 	}
