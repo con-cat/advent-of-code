@@ -39,9 +39,10 @@ func strToInt(str string) int {
 }
 
 func main() {
-	// 1 December
-	fmt.Println("=== Day 1 ===")
-	input := sliceFileLines("../input/day01.txt")
-	increaseCount := day1Part2(input)
-	fmt.Println(increaseCount)
+	fmt.Println("=== Day 2 ===")
+	input := sliceFileLines("../input/day02.txt")
+
+	fmt.Println("--- Part 1 ---")
+	result := day2(input)
+	fmt.Println(result)
 }
