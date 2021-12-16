@@ -39,9 +39,18 @@ func strToInt(str string) int {
 }
 
 func main() {
-	fmt.Println("=== Day 2 ===")
-	input := sliceFileLines("../input/day02.txt")
+	fmt.Println("=== Day 1 ===")
+	input := sliceFileLines("../input/day01.txt")
+	result := day1(input)
+	fmt.Printf("Part 1 result: %d\n", result)
 
-	result := day2(input)
+	fmt.Println("=== Day 2 ===")
+	input = sliceFileLines("../input/day02.txt")
+	result = day2(input)
+	fmt.Printf("Part 2 result: %d\n", result)
+
+	fmt.Println("=== Day 3 ===")
+	input = sliceFileLines("../input/day03.txt")
+	result = day3Part2(input)
 	fmt.Printf("Part 2 result: %d\n", result)
 }
