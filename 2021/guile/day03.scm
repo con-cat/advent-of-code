@@ -42,8 +42,21 @@
            (most-common-bit (sum-bits data len) (length data)))))
     (* (bit-list->number gamma-rate) (bit-list->number (map flip-bit gamma-rate)))))
 
+(define (equal-at-index lst1 lst2 index)
+  (equal? (list-ref lst1 index) (list-ref lst2 index)))
+
+(define (filter-data bits lst index)
+  (filter (lambda (item) (equal-at-index bits item index)) lst))
+
+(define (most-common-bits)
+   (most-common-bit (sum-bits data (length (car data))) (length data)))
+
 (define (part2)
+  (let ((bits (most-common-bits)))
+      (do ((i 0 (1+ i)))
+          ((< i (length bits)))
+        (set! data (filter-data bits data i))
+        (display data))))
 
 
-
-(part1)
+(part2)
