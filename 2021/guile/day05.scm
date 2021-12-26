@@ -36,18 +36,9 @@
   ;; Return whether a vec2's values at the specified index are duplicate
   (eq? (list-ref (list-ref vec2 0) i) (list-ref (list-ref vec2 1) i)))
 
-(define (vec2->coords vec2)
-  ;; Take a vec2, and return a list of all of the (x y) coordinates it covers
-  (if (same-at-index? vec2 0)
-      ;; It's a horizontal vector
-      (let ((x (list-ref (car vec2) 0)))
-        (list-ec (: y (min-at-index vec2 1) (1+ (max-at-index vec2 1))) (list x y)))
-      ;; Otherwise, is it a vertical vector?
-      (if (same-at-index? vec2 1)
-        (let ((y (list-ref (car vec2) 1)))
-          (list-ec (: x (min-at-index vec2 0) (1+ (max-at-index vec2 0))) (list x y)))
-        ;; Disregard if it's diagonal for now
-        '())))
+(define (coord1+ coord)
+  ;; Add 1 to both the x and y value of a coord
+  (list (1+ (first coord)) (1+ (last coord))))
 
 (define (coord<? coord-1 coord-2)
   ;; Is the first coord less than the second?
@@ -58,6 +49,36 @@
 (define (coord-eq? coord-1 coord-2)
   ;; Are two coordinates equal?
   (and? (eq? (first coord-1) (first coord-2)) (eq? (last coord-1) (last coord-2))))
+
+(define (min-coord vec2)
+  (if (coord<? (first vec2) (last vec2))
+      (first vec2)
+      (last vec2)))
+
+(define (max-coord vec2)
+  (if (coord<? (first vec2) (last vec2))
+      (last vec2)
+      (first vec2)))
+
+(define (vec2->coords vec2 include-diagonals?)
+  ;; Take a vec2, and return a list of all of the (x y) coordinates it covers
+  (cond ((same-at-index? vec2 0)
+         ;; It's a horizontal vector
+         (let ((x (first (car vec2))))
+           (list-ec (: y (min-at-index vec2 1) (1+ (max-at-index vec2 1))) (list x y))))
+        ((same-at-index? vec2 1)
+        ;; It's a vertical vector?
+         (let ((y (last (car vec2))))
+           (list-ec (: x (min-at-index vec2 0) (1+ (max-at-index vec2 0))) (list x y))))
+        (include-diagonals?
+         ;; It's a diagonal, calculate it if we're including them
+         (zip
+           (list-ec (: x (min-at-index vec2 0) (1+ (max-at-index vec2 0))) x)
+           (list-ec (: y (min-at-index vec2 1) (1+ (max-at-index vec2 1))) y)))
+        (else
+         ;; Disregard the item
+         '())))
+
 
 (define (find-adjacent-duplicates coord-lst)
   ;; Return a list of unique duplicates from a sorted list of coordinates
@@ -85,16 +106,22 @@
    #\newline))
 
 
-(define coords
-  ;; Get a list of all of the unique coordinates covered by the vectors defined in the input
-  (sort-list
-   (remove null?
-           (flatten (map (lambda (line) (vec2->coords (string->vec2 line)))
-                        input-lines))) coord<?))
-
-;; Calculate part 1
-
 (define (part-1)
-  (length (find-adjacent-duplicates coords)))
+  (let ((coords
+         ;; Get a list of all of the unique coordinates covered by the horizontal vectors defined in the input
+         (sort-list
+          (remove null?
+                  (flatten (map (lambda (line) (vec2->coords (string->vec2 line) #f))
+                                input-lines))) coord<?)))
+    (length (find-adjacent-duplicates coords))))
 
-(part-1)
+(define (part-2)
+  (let ((coords
+         ;; As above, but include diagonals
+         (sort-list
+          (remove null?
+                  (flatten (map (lambda (line) (vec2->coords (string->vec2 line) #t))
+                                input-lines))) coord<?)))
+    (length (find-adjacent-duplicates coords))))
+
+;;(part-2)
