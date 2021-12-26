@@ -72,9 +72,15 @@
            (list-ec (: x (min-at-index vec2 0) (1+ (max-at-index vec2 0))) (list x y))))
         (include-diagonals?
          ;; It's a diagonal, calculate it if we're including them
-         (zip
-           (list-ec (: x (min-at-index vec2 0) (1+ (max-at-index vec2 0))) x)
-           (list-ec (: y (min-at-index vec2 1) (1+ (max-at-index vec2 1))) y)))
+         (let ((x-vals (list-ec (: x (min-at-index vec2 0) (1+ (max-at-index vec2 0))) x))
+               (y-vals (list-ec (: y (min-at-index vec2 1) (1+ (max-at-index vec2 1))) y)))
+           (zip
+            (if (> (first (first vec2)) (min-at-index vec2 0))
+                (reverse x-vals)
+                x-vals)
+            (if (> (last (first vec2)) (min-at-index vec2 1))
+                (reverse y-vals)
+                y-vals))))
         (else
          ;; Disregard the item
          '())))
@@ -123,5 +129,3 @@
                   (flatten (map (lambda (line) (vec2->coords (string->vec2 line) #t))
                                 input-lines))) coord<?)))
     (length (find-adjacent-duplicates coords))))
-
-;;(part-2)
