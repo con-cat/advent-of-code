@@ -96,13 +96,6 @@
           (else
            (loop (cdr lst) result)))))
 
-(define (flatten lst)
-  ;; Flatten a three-dimensional list into a two-dimensional list
-  (let loop ((lst lst) (acc '()))
-    (if (null? lst)
-        acc
-        (loop (cdr lst) (fold cons acc (car lst))))))
-
 ;; Set up the input data
 
 (define input-lines
@@ -117,7 +110,7 @@
          ;; Get a list of all of the unique coordinates covered by the horizontal vectors defined in the input
          (sort-list
           (remove null?
-                  (flatten (map (lambda (line) (vec2->coords (string->vec2 line) #f))
+                  (concatenate (map (lambda (line) (vec2->coords (string->vec2 line) #f))
                                 input-lines))) coord<?)))
     (length (find-adjacent-duplicates coords))))
 
@@ -126,6 +119,6 @@
          ;; As above, but include diagonals
          (sort-list
           (remove null?
-                  (flatten (map (lambda (line) (vec2->coords (string->vec2 line) #t))
+                  (concatenate (map (lambda (line) (vec2->coords (string->vec2 line) #t))
                                 input-lines))) coord<?)))
     (length (find-adjacent-duplicates coords))))
