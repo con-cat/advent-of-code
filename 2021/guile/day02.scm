@@ -1,10 +1,3 @@
-(use-modules
- (ice-9 rdelim)
- (srfi srfi-1)
- (srfi srfi-42)
- (srfi srfi-41))
-
-
 (define (get-lines proc filename)
   (call-with-input-file filename
     (lambda (port)
@@ -21,21 +14,39 @@
 (define input (get-lines process-line "/Users/caitlinwhite/src/advent-of-code/2021/input/day02.txt"))
 
 ;; PART 1
-(define x 0)
-(define y 0)
 
 (define (part-1)
-  (let loop ((directions input))
-    (cond ((null? directions)
-           (* x y))
-          ((string=? (caar directions) "forward")
-            (set! x (+ x (cdar directions)))
-            (loop (cdr directions)))
-          ((string=? (caar directions) "up")
-            (set! y (- y (cdar directions)))
-            (loop (cdr directions)))
-          ((string=? (caar directions) "down")
-            (set! y (+ y (cdar directions)))
-            (loop (cdr directions))))))
+  (let ((x 0) (y 0))
+    (let loop ((directions input))
+      (cond ((null? directions)
+             (* x y))
+            ((string=? (caar directions) "forward")
+             (set! x (+ x (cdar directions)))
+             (loop (cdr directions)))
+            ((string=? (caar directions) "up")
+             (set! y (- y (cdar directions)))
+             (loop (cdr directions)))
+            ((string=? (caar directions) "down")
+             (set! y (+ y (cdar directions)))
+             (loop (cdr directions)))))))
 
-(part-1)
+;; PART 2
+
+(define (part-2)
+  (let ((x 0) (y 0) (aim 0))
+    (let loop ((directions input))
+      (cond ((null? directions)
+             (* x y))
+            ((string=? (caar directions) "forward")
+             (set! x (+ x (cdar directions)))
+             (set! y (+ y (* aim (cdar directions))))
+             (loop (cdr directions)))
+            ((string=? (caar directions) "up")
+             (set! aim (- aim (cdar directions)))
+             (loop (cdr directions)))
+            ((string=? (caar directions) "down")
+             (set! aim (+ aim (cdar directions)))
+             (loop (cdr directions)))))))
+
+
+(part-2)
