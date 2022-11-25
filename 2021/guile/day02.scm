@@ -1,52 +1,67 @@
-(define (get-lines proc filename)
-  (call-with-input-file filename
-    (lambda (port)
-      (let loop ((lines '()))
-        (let ((line (read-line port)))
-          (if (eof-object? line)
-              lines
-              (loop (append lines (list (proc line))))))))))
+(use-modules (srfi srfi-41))
 
-(define (process-line line)
+(define-stream (file->stream-lines filename)
+  ;; Stream a file line by line
+  (let ((p (open-input-file filename)))
+    (stream-let loop ((l (read-line p)))
+                (if (eof-object? l)
+                    (begin (close-input-port p)
+                           stream-null)
+                    (stream-cons l
+                                 (loop (read-line p)))))))
+
+(define (parse-line line)
+  ;; Parse the line to a pair of string and int
   (let ((split (string-split line #\space)))
     (cons (car split) (string->number (cadr split)))))
 
-(define input (get-lines process-line "/Users/caitlinwhite/src/advent-of-code/2021/input/day02.txt"))
+(define input (stream-map parse-line (file->stream-lines "/Users/caitlinwhite/src/advent-of-code/2021/input/day02.txt")))
+
+
+(define (direction s)
+  ;; Return the direction string from the first item of the input stream
+  (let ((item (stream-car s)))
+    (car item)))
+
+(define (n s)
+  ;; Return the number from the first item of the input stream
+  (let ((item (stream-car s)))
+    (cdr item)))
 
 ;; PART 1
 
 (define (part-1)
   (let ((x 0) (y 0))
-    (let loop ((directions input))
-      (cond ((null? directions)
+    (let loop ((input input))
+      (cond ((stream-null? input)
              (* x y))
-            ((string=? (caar directions) "forward")
-             (set! x (+ x (cdar directions)))
-             (loop (cdr directions)))
-            ((string=? (caar directions) "up")
-             (set! y (- y (cdar directions)))
-             (loop (cdr directions)))
-            ((string=? (caar directions) "down")
-             (set! y (+ y (cdar directions)))
-             (loop (cdr directions)))))))
+            ((string=? (direction input) "forward")
+             (set! x (+ x (n input)))
+             (loop (stream-cdr input)))
+            ((string=? (direction input) "up")
+             (set! y (- y (n input)))
+             (loop (stream-cdr input)))
+            ((string=? (direction input) "down")
+             (set! y (+ y (n input)))
+             (loop (stream-cdr input)))))))
 
 ;; PART 2
 
 (define (part-2)
   (let ((x 0) (y 0) (aim 0))
-    (let loop ((directions input))
-      (cond ((null? directions)
+    (let loop ((input input))
+      (cond ((stream-null? input)
              (* x y))
-            ((string=? (caar directions) "forward")
-             (set! x (+ x (cdar directions)))
-             (set! y (+ y (* aim (cdar directions))))
-             (loop (cdr directions)))
-            ((string=? (caar directions) "up")
-             (set! aim (- aim (cdar directions)))
-             (loop (cdr directions)))
-            ((string=? (caar directions) "down")
-             (set! aim (+ aim (cdar directions)))
-             (loop (cdr directions)))))))
+            ((string=? (direction input) "forward")
+             (set! x (+ x (n input)))
+             (set! y (+ y (* aim (n input))))
+             (loop (stream-cdr input)))
+            ((string=? (direction input) "up")
+             (set! aim (- aim (n input)))
+             (loop (stream-cdr input)))
+            ((string=? (direction input) "down")
+             (set! aim (+ aim (n input)))
+             (loop (stream-cdr input)))))))
 
 
 (part-2)
