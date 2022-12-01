@@ -1,17 +1,7 @@
+(add-to-load-path (dirname (current-filename)))
 (use-modules
- (srfi srfi-41)
- (ice-9 rdelim))
-
-
-(define-stream (file->stream-lines filename)
-  ;; Stream a file line by line
-  (let ((p (open-input-file filename)))
-    (stream-let loop ((l (read-line p)))
-                (if (eof-object? l)
-                    (begin (close-input-port p)
-                           stream-null)
-                    (stream-cons l
-                                 (loop (read-line p)))))))
+ (helpers)
+ (srfi srfi-41))
 
 (define input
   (stream-map string->number (file->stream-lines "../input/day01.txt")))
