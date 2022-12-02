@@ -1,6 +1,7 @@
 (add-to-load-path (dirname (current-filename)))
 (use-modules
  (helpers)
+ (srfi srfi-1)
  (srfi srfi-41)
  (srfi srfi-69))
 
@@ -8,65 +9,61 @@
 
 ;; Strings to moves
 (define moves (make-hash-table string=?))
-(hash-table-set! moves "A" 'rock)
-(hash-table-set! moves "B" 'paper)
-(hash-table-set! moves "C" 'scissors)
-(hash-table-set! moves "X" 'rock)
-(hash-table-set! moves "Y" 'paper)
-(hash-table-set! moves "Z" 'scissors)
+(hash-table-set! moves "A" 1) ;; rock
+(hash-table-set! moves "B" 2) ;; paper
+(hash-table-set! moves "C" 3) ;; scissors
+(hash-table-set! moves "X" 1) ;; rock
+(hash-table-set! moves "Y" 2) ;; paper
+(hash-table-set! moves "Z" 3) ;; scissors
 
-;; Moves to scores
-(define scores (make-hash-table))
-(hash-table-set! scores 'rock 1)
-(hash-table-set! scores 'paper 2)
-(hash-table-set! scores 'scissors 3)
+(define wins (circular-list 1 2 3)) ;; Item defeated by next item
 
-(define (my-score input)
-  (hash-table-ref scores (cadr (stream-car input))))
+(define (winning-move move)
+  (cadr (find-tail (lambda (x) (eq? move x)) wins)))
 
-;; Which move defeats which?
-(define defeats (make-hash-table))
-(hash-table-set! defeats 'rock 'scissors)
-(hash-table-set! defeats 'scissors 'paper)
-(hash-table-set! defeats 'paper 'rock)
+(define (losing-move move)
+  (winning-move (winning-move move)))
 
-(define (losing-move m) ;; E.g. scissors for rock
-  (hash-table-ref defeats m))
-
-(define (draw? pair)
-  (eq? (car pair) (cadr pair)))
-
-(define (i-win? pair)
-  (eq? (losing-move (cadr pair)) (car pair)))
+(define (i-win? moves)
+  (eq? (cadr moves) (winning-move (car moves))))
 
 ;; Solutions
-(define (part-1-moves pair)
-  (map (lambda (s) (hash-table-ref moves s)) pair))
+(define (parse-part-1 line)
+  (map (lambda (s) (hash-table-ref moves s)) line))
 
-(define (part-2-moves p)
-  (let ((their-move (hash-table-ref moves (car p)))
-        (result (cadr p)))
-    (cond ((string=? result "Y") ;; Draw
-           (list their-move their-move))
-          ((string=? result "X") ;; They win
-           (list their-move (losing-move their-move)))
-          (else ;; I win
-           (list their-move (losing-move (losing-move their-move)))))))
+(define (part-1)
+  (let loop ((input (stream-map parse-part-1 input)) (score 0))
+    (if (stream-null? input)
+        score
+        (let ((my-score (cadr (stream-car input))))
+            (cond ((stream-null? input)
+                score)
+                ((apply eq? (stream-car input)) ;; Draw
+                (loop (stream-cdr input) (+ score 3 my-score)))
+                ((i-win? (stream-car input)) ;; I win
+                (loop (stream-cdr input) (+ score 6 my-score)))
+                (else ;; They win
+                (loop (stream-cdr input) (+ score my-score))))))))
 
-(define (solve proc)
-  (let loop ((input (stream-map proc input)) (score 0))
-    (cond ((stream-null? input)
-           score)
-          ((draw? (stream-car input))
-           (loop (stream-cdr input) (+ score 3 (my-score input))))
-          ((i-win? (stream-car input))
-           (loop (stream-cdr input) (+ score 6 (my-score input))))
-          (else
-           (loop (stream-cdr input) (+ score (my-score input)))))))
+(define (parse-part-2 line)
+  (cons (hash-table-ref moves (car line)) (cadr line)))
+
+(define (part-2)
+  (let loop ((input (stream-map parse-part-2 input)) (score 0))
+    (if (stream-null? input)
+        score
+        (let ((my-move (cdr (stream-car input)))
+              (their-move (car (stream-car input))))
+          (cond ((string=? my-move "Y") ;; draw
+                 (loop (stream-cdr input) (+ score their-move 3)))
+                ((string=? my-move "Z") ;; I win
+                 (loop (stream-cdr input) (+ score (winning-move their-move) 6)))
+                (else ;; they win
+                 (loop (stream-cdr input) (+ score (losing-move their-move)))))))))
 
 (display "Part 1: ")
-(display (solve part-1-moves))
+(display (part-1))
 (newline)
 (display "Part 2: ")
-(display (solve part-2-moves))
+(display (part-2))
 (newline)
