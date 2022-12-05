@@ -7,7 +7,7 @@ class DoneWithStacks(Exception):
 
 
 class Day5:
-    stacks: defaultdict[int, deque[str]]
+    stacks: defaultdict[int, list[str]]
     directions: list[tuple[int, int, int]]
 
     def __init__(self, file_path: str) -> None:
@@ -49,11 +49,18 @@ class Day5:
         p = re.compile(r"^move (\d+) from (\d+) to (\d+)")
         self.directions.append(tuple(int(num) for num in p.findall(line).pop()))
 
-    def solve(self) -> str:
+    def solve(self, *, part: int) -> str:
         for direction in self.directions:
             num_crates, from_stack, to_stack = direction
-            for _ in range(num_crates):
-                self.stacks[to_stack].append(self.stacks[from_stack].pop())
+            if part == 1:
+                for _ in range(num_crates):
+                    self.stacks[to_stack].append(self.stacks[from_stack].pop())
+            elif part == 2:
+                moved = []
+                for _ in range(num_crates):
+                    moved.append(self.stacks[from_stack].pop())
+                moved.reverse()
+                self.stacks[to_stack].extend(moved)
 
         result = ""
         for _, stack in sorted(self.stacks.items(), key=lambda s: s[0]):
@@ -64,5 +71,6 @@ class Day5:
 if __name__ == "__main__":
     input_path = "../input/day05.txt"
     print("Part 1")
-    part1 = Day5(input_path)
-    print(part1.solve())
+    print(Day5(input_path).solve(part=1))
+    print("Part 2")
+    print(Day5(input_path).solve(part=2))
