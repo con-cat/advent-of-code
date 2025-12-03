@@ -1,8 +1,8 @@
-pub fn part_1(input: String) -> i64 {
+pub fn part_1(input: &str) -> i64 {
     let mut total = 0;
     let lines: Vec<_> = input.split(",").collect();
     for line in lines {
-        let num_range = parse_line(line.to_string());
+        let num_range = parse_line(&line);
 
         for number in num_range {
             if !is_valid_id(number) {
@@ -14,11 +14,11 @@ pub fn part_1(input: String) -> i64 {
     total
 }
 
-pub fn part_2(input: String) -> i64 {
+pub fn part_2(input: &str) -> i64 {
     let mut total = 0;
     let lines: Vec<_> = input.split(",").collect();
     for line in lines {
-        let num_range = parse_line(line.to_string());
+        let num_range = parse_line(line);
 
         for number in num_range {
             if has_repeated_substring_pattern(&number.to_string()) {
@@ -30,7 +30,7 @@ pub fn part_2(input: String) -> i64 {
     total
 }
 
-fn parse_line(line: String) -> std::ops::RangeInclusive<i64> {
+fn parse_line(line: &str) -> std::ops::RangeInclusive<i64> {
     let numbers: Vec<_> = line.split("-").collect();
     let start = numbers[0].parse::<i64>().expect("Cannot parse start");
     let end = numbers[1].parse::<i64>().expect("Cannot parse end");
@@ -83,17 +83,17 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        assert_eq!(part_1(INPUT.to_string()), 1227775554);
+        assert_eq!(part_1(INPUT), 1227775554);
     }
 
     #[test]
     fn test_part_2() {
-        assert_eq!(part_2(INPUT.to_string()), 4174379265);
+        assert_eq!(part_2(INPUT), 4174379265);
     }
 
     #[test]
     fn test_parse_line() {
-        let line = "11-22".to_string();
+        let line = "11-22";
 
         assert_eq!(parse_line(line), 11..=22)
     }
