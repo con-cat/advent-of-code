@@ -7,6 +7,6 @@ mod helpers;
 
 fn main() {
     let input_path = "../input/day04.txt";
-    let result = day04::part_1(input_path);
+    let result = day04::part_2(input_path);
     println!("{}", result);
 }
