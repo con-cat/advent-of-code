@@ -2,10 +2,11 @@
 mod day01;
 mod day02;
 mod day03;
+mod day04;
 mod helpers;
 
 fn main() {
-    let input_path = "../input/day03.txt";
-    let result = day03::part_2(input_path);
+    let input_path = "../input/day04.txt";
+    let result = day04::part_1(input_path);
     println!("{}", result);
 }
